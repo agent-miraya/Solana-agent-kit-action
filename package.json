@@ -1,0 +1,28 @@
+{
+  "name": "agent",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "prebuild": "node esbuild.js",
+    "start": "tsx src/index.ts",
+    "test": "npm run prebuild && npm run start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@lit-protocol/auth-helpers": "^7.0.2",
+    "@lit-protocol/lit-auth-client": "^7.0.2",
+    "@lit-protocol/lit-node-client": "^7.0.2",
+    "@lit-protocol/wrapped-keys": "^7.0.2",
+    "dotenv": "^16.4.7",
+    "esbuild": "^0.24.2",
+    "ethers": "^5.7.2",
+    "glob": "^11.0.0",
+    "solana-agent-kit": "^1.1.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

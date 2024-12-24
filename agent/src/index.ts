@@ -139,7 +139,7 @@ async function executeJsHandler() {
             code: LIT_ACTION.toString(),
             jsParams: {
                 // MESSAGE: "Launch token names LIT with ticker $LIT on pump.fun with description 'hahaha, it worked!",
-                MESSAGE: "What's my account balance?",
+                MESSAGE: "What's my account's sol balance?",
                 ciphertext: solanaCipherText,
                 dataToEncryptHash: solanaDataToEncryptHash,
                 accessControlConditions: [accessControlConditions],

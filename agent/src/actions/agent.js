@@ -38,14 +38,22 @@ async function callAgent(SOLANA_PRIVATE_KEY, RPC_URL, OPENAI_API_KEY, MESSAGE) {
         config
     );
 
+    const response = {
+        agent: [],
+        tools: []
+    };
+
     for await (const chunk of stream) {
         if ("agent" in chunk) {
+            response.agent.push(chunk.agent.messages[0].content);
             console.log(chunk.agent.messages[0].content);
         } else if ("tools" in chunk) {
+            response.tools.push(chunk.tools.messages[0].content);
             console.log(chunk.tools.messages[0].content);
         }
         console.log("-------------------");
     }
+    return response;
 }
 
 async function getPrivateKey() {
@@ -64,13 +72,15 @@ async function getPrivateKey() {
 }
 
 /*
-  This is the main function that runs the chat.
-  * message
-  * ciphertext
-  * dataToEncryptHash
-  * accessControlConditions
-  * RPC_URL
-  * OPENAI_API_KEY
+ * Function that handles chat operations with solana agent kit
+ * 
+ * @param {string} message - The chat message to be processed
+ * @param {string} ciphertext - Encrypted text data
+ * @param {string} dataToEncryptHash - Hash of the data to be encrypted
+ * @param {Object} accessControlConditions - Conditions determining access permissions
+ * @param {string} RPC_URL - Remote Procedure Call URL for API communication
+ * @param {string} OPENAI_API_KEY - Authentication key for OpenAI API integration
+ * 
 */
 async function runChat() {
     try {
@@ -81,8 +91,7 @@ async function runChat() {
             OPENAI_API_KEY,
             MESSAGE
         );
-        console.log("Response: ", response);
-        Lit.Actions.setResponse({ response: response });
+        Lit.Actions.setResponse({ response: JSON.stringify(response) });
     } catch (error) {
         Lit.Actions.setResponse({ response: error.message });
     }

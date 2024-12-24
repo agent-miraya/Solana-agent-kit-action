@@ -4,6 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "build-sdk": "cd ../solana-agent-kit && npm run build",
     "prebuild": "node esbuild.js",
     "start": "tsx src/index.ts",
     "test": "npm run prebuild && npm run start"

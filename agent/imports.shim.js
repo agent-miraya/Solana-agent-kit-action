@@ -1,3 +1,4 @@
+// import { SolanaAgentKit, createSolanaTools } from "../solana-agent-kit/dist/index.js";
 import { SolanaAgentKit, createSolanaTools } from "solana-agent-kit";
 import { HumanMessage } from "@langchain/core/messages";
 import { ChatOpenAI } from "@langchain/openai";

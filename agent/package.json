@@ -18,6 +18,8 @@
     "@lit-protocol/lit-auth-client": "^7.0.2",
     "@lit-protocol/lit-node-client": "^7.0.2",
     "@lit-protocol/wrapped-keys": "^7.0.2",
+    "bs58": "^6.0.0",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "esbuild": "^0.24.2",
     "ethers": "^5.7.2",

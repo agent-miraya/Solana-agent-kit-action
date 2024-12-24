@@ -1,53 +1,66 @@
-async function initializeAgent(SOLANA_PRIVATE_KEY) {
-  const llm = new ChatOpenAI({
-    modelName: "gpt-4",
-    temperature: 0.7,
-  });
+async function initializeAgent(SOLANA_PRIVATE_KEY, RPC_URL, OPENAI_API_KEY) {
+    console.log("Initializing Agent");
 
-  const solanaKit = new SolanaAgentKit(
-    SOLANA_PRIVATE_KEY,
-    RPC_URL,
-    OPENAI_API_KEY
-  );
+    const llm = new ChatOpenAI({
+        modelName: "gpt-4",
+        temperature: 0.7,
+        openAIApiKey: OPENAI_API_KEY,
+    });
 
-  const tools = createSolanaTools(solanaKit);
+    const base58PrivateKey = bs58.encode(Buffer.from(SOLANA_PRIVATE_KEY, 'hex'));
 
-  return createReactAgent({
-    llm,
-    tools,
-  });
+    const solanaKit = new SolanaAgentKit(
+        base58PrivateKey,
+        RPC_URL,
+        OPENAI_API_KEY
+    );
+
+    const tools = createSolanaTools(solanaKit);
+    return createReactAgent({
+        llm,
+        tools,
+    });
 }
 
-async function callAgent(SOLANA_PRIVATE_KEY, message) {
-  const agent = await initializeAgent(SOLANA_PRIVATE_KEY);
-  const config = { configurable: { thread_id: "Solana Agent Kit!" } };
-  
-  const stream = await agent.stream({
+async function callAgent(SOLANA_PRIVATE_KEY, RPC_URL, OPENAI_API_KEY, MESSAGE) {
+    const agent = await initializeAgent(
+        SOLANA_PRIVATE_KEY,
+        RPC_URL,
+        OPENAI_API_KEY
+    );
     
-    messages: [new HumanMessage(`${message}`)]
-  }, config);
-  
-  for await (const chunk of stream) {
-    if ("agent" in chunk) {
-      console.log(chunk.agent.messages[0].content);
-    } else if ("tools" in chunk) {
-      console.log(chunk.tools.messages[0].content);
+    const config = { configurable: { thread_id: "Solana Agent Kit!" } };
+
+    const stream = await agent.stream(
+        {
+            messages: [new HumanMessage(`${MESSAGE}`)],
+        },
+        config
+    );
+
+    for await (const chunk of stream) {
+        if ("agent" in chunk) {
+            console.log(chunk.agent.messages[0].content);
+        } else if ("tools" in chunk) {
+            console.log(chunk.tools.messages[0].content);
+        }
+        console.log("-------------------");
     }
-    console.log("-------------------");
-  }
 }
 
 async function getPrivateKey() {
-  const response = await Lit.Actions.call({
-    ipfsId: "QmUJ74pTUqeeHzDGdfwCph1vJVNJ1rRzJdvMiTjS1BMwYj", // Lit Action for signing on Solana
-    params: {
+    const LIT_PREFIX = "lit_";
+    const response = await Lit.Actions.decryptAndCombine({
         accessControlConditions,
         ciphertext,
         dataToEncryptHash,
-    },
-});
-console.log("",response);
-return response;
+        chain: "ethereum",
+        authSig: null,
+    });
+    const privateKey = response.startsWith(LIT_PREFIX)
+        ? response.slice(LIT_PREFIX.length)
+        : response;
+    return privateKey;
 }
 
 /*
@@ -60,15 +73,19 @@ return response;
   * OPENAI_API_KEY
 */
 async function runChat() {
-  try {
-    const privateKey = await getPrivateKey()
-    const response = await callAgent(privateKey, message)
-    console.log("Response: ", response)
-    Lit.Actions.setResponse({response: response})
-  } catch (error) {
-    Lit.Actions.setResponse({response: error.message})
-  }
-  }
-  
-  runChat().catch(console.error);
-  
+    try {
+        const privateKey = await getPrivateKey();
+        const response = await callAgent(
+            privateKey,
+            RPC_URL,
+            OPENAI_API_KEY,
+            MESSAGE
+        );
+        console.log("Response: ", response);
+        Lit.Actions.setResponse({ response: response });
+    } catch (error) {
+        Lit.Actions.setResponse({ response: error.message });
+    }
+}
+
+runChat().catch(console.error);
